@@ -56,8 +56,8 @@ function scanDriveAndReply() {
       var ccRecipients = lastMessage.getCc(); // Get the CC recipients
 
       Logger.log('Processing thread with subject: ' + subject);
-      Logger.log('From email: ' + fromEmail);
-      Logger.log('CC recipients: ' + ccRecipients);
+      // Logger.log('From email: ' + fromEmail);
+      // Logger.log('CC recipients: ' + ccRecipients);
 
       var matchedInvoices = subject.match(/\d{4}/g) || [];
       var invoicesToProcess = matchedInvoices.filter(function (number) {
@@ -68,32 +68,41 @@ function scanDriveAndReply() {
 
       if (invoicesToProcess.length > 0) {
         var attachments = [];
+        // Loop through each invoice number to find matching files
         invoicesToProcess.forEach(function (number) {
           var filesInFolder = folder.getFilesByName(number + '.pdf');
           while (filesInFolder.hasNext()) {
-            attachments.push(filesInFolder.next());
+            var file = filesInFolder.next();
+            attachments.push(file);
           }
         });
+
+        // Handle cases where filenames may contain multiple invoice numbers
+        var allFiles = folder.getFiles();
+        while (allFiles.hasNext()) {
+          var file = allFiles.next();
+          var fileName = file.getName();
+          if (invoicesToProcess.some(number => fileName.includes(number))) {
+            attachments.push(file);
+          }
+        }
 
         Logger.log('Attachments found: ' + attachments.length);
 
         if (attachments.length > 0) {
           var replySubject = 'Re: ' + subject.replace(/^Re: /, '');
-
-          // Construct the body of the email
           var body = "Dear Mr./Mrs.,\n\n" +
             "Attached are the payment proof for the invoice(s):\n" +
             invoicesToProcess.join(', ') + "\n\n" +
             "Thank you.\n\n" +
             "Best regards,\n" +
-            "(Your Name)"; // Replace 'John Doe' with your actual name
+            "Your Name"; // Replace 'John Doe' with your actual name
 
           try {
             lastMessage.reply(body, {
               attachments: attachments,
               subject: replySubject,
-              cc: ccRecipients, // Include CC recipients in the reply
-              name: '(Your Name)'
+              cc: ccRecipients // Include CC recipients in the reply
             });
 
             // Mark invoices as processed
@@ -145,4 +154,3 @@ function markAsProcessed(invoiceNumbers, thread) {
     Logger.log('Marked as processed with label: ' + labelName);
   });
 }
-
