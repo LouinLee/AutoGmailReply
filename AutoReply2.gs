@@ -1,4 +1,5 @@
-// Improved version that handle several 4 digits number in the email and label it with only the numbers that are present google drive folder, which allow unlabeled numbers to be processed and send with attachments in the futuer
+// Improved version that handle several 4 digits number in the email and label it with only the numbers that are present google drive folder\
+// This allow unlabeled numbers from respective email to be processed and send with attachments in the future
 
 function replyWithPaymentProof() {
   const folderName = "Payment Proof";
