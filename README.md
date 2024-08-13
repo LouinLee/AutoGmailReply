@@ -1,4 +1,4 @@
-# Drive and Gmail Integration Script
+# GDrive and Gmail Integration Script
 
 ## Overview
 
